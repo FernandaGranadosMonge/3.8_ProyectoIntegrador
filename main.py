@@ -127,8 +127,9 @@ class OrderIterator(Iterator):
         return self.index < len(self.car_order.cars)
 
     def next(self):
+        ordered_cars = sorted(self.car_order.cars, key=lambda car: car.name.lower())
         if self.has_next():
-            car = self.car_order.cars[self.index]
+            car = ordered_cars[self.index]
             self.index += 1
             return car
         raise StopIteration
@@ -139,6 +140,7 @@ class PaymentProcessor(ABC):
     def pay(self, amount: float):
         pass
 
+# Current Service
 class LowPayment(PaymentProcessor):
     def pay(self, amount: float):
         if amount > 10000 or amount < 0:
@@ -146,9 +148,11 @@ class LowPayment(PaymentProcessor):
             return
         print(f"Successful payment of ${amount} with Low Payment")
 
+# Current payment system
 def checkout(processor:PaymentProcessor, amount):
     processor.pay(amount)
 
+# New Service
 class AnyPayment:
     def process_payment(self, amount: float, business_name: str):
         print("Processing...")
@@ -164,7 +168,7 @@ class AnyPaymentAdapter(PaymentProcessor):
     def pay(self, amount):
         self.service.process_payment(amount, "PERSONALIZED CARS")
 
-### INFDIVIDUAL FEATURES
+### INDIVIDUAL FEATURES
 premiumSound = CarFeature("Premium Sound System", 1500.99)
 bluetooth = CarFeature("Bluetooth Connectivity", 1200.99)
 proximitySensor = CarFeature("Proximity Sensor", 800.99)
@@ -180,17 +184,20 @@ sportTechFeatures = FeatureGroup("Tech Features")
 sportTechFeatures.add_feature(premiumSound)
 sportTechFeatures.add_feature(bluetooth)
 
+sportPaintJob = FeatureGroup("Paint Job")
+sportPaintJob.add_feature(redPaint)
+sportPaintJob.add_feature(bluePaint)
+
 sportCarFeatures = FeatureGroup("Personalized Sports Car Features")
-sportCarFeatures.add_feature(redPaint)
 sportCarFeatures.add_feature(turboEngine)
 sportCarFeatures.add_feature(sportTechFeatures)
+sportCarFeatures.add_feature(sportPaintJob)
 
 ## FAMILY CAR FEATURES
 familyTechFeatures = FeatureGroup("Tech Features")
 familyTechFeatures.add_feature(bluetooth)
 
 familiyCarFeatures = FeatureGroup("Personalized Family Car Features")
-familiyCarFeatures.add_feature(bluePaint)
 familiyCarFeatures.add_feature(heatedSeats)
 familiyCarFeatures.add_feature(familyTechFeatures)
 
