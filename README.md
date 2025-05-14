@@ -24,5 +24,6 @@ Este proyecto consiste en una empresa que permite a sus clientes crear autos per
 - __Cómo se solucionó el problema__: Se creó una clase AnyPaymentAdapter que pasa la petición de pago del sistema actual al servicio de AnyPayment. Es en esta clase adaptador que se llama a la función equivalente para que realice el proceso de pago y se le pasan sus parámetros que no coinciden con los proporcionados por el sistema actual. De esta manera, no se cambia el sistema y se puede seguir usando el servicio anterior y ahora también el nuevo servicio.
 
 ### Diagrama de Clases
-![3 8_DiagramaClases_ProyectoIntegrador](https://github.com/user-attachments/assets/147ca75b-9642-4aca-81e9-7b51506efcc8)
+![3 8_DiagramaClases_ProyectoIntegrador (1)](https://github.com/user-attachments/assets/0ccb6afc-28ea-4c03-9a14-db5a0bd0303b)
+
 
