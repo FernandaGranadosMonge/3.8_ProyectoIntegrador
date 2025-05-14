@@ -93,6 +93,36 @@ class CarDirector:
     def construct_electric_car(self):
         return self.builder.set_name("Electric Car").set_base_price(50000).set_features(electricCarFeatures).build()
 
+## CLASSES FOR ADAPTER DESIGN PATTERN
+class PaymentProcessor(ABC):
+    @abstractmethod
+    def pay(self, amount: float):
+        pass
+
+# Current Service
+class LowPayment(PaymentProcessor):
+    def pay(self, amount: float):
+        if amount > 10000 or amount < 0:
+            print("Payment failed! Too expensive.")
+            return
+        print(f"Successful payment of ${amount} with Low Payment")
+
+# New Service
+class AnyPayment:
+    def process_payment(self, amount: float, business_name: str):
+        print("Processing...")
+        if amount < 0:
+            print("Process failed!")
+            return
+        print(f"Payment to {business_name} of ${amount} successful --- Any Payment")
+
+class AnyPaymentAdapter(PaymentProcessor):
+    def __init__(self, service: AnyPayment):
+        self.service = service
+
+    def pay(self, amount):
+        self.service.process_payment(amount, "PERSONALIZED CARS")
+
 ## CLASSES FOR ITERATOR DESIGN PATTERN
 class Iterator(ABC):
     @abstractmethod
@@ -111,9 +141,14 @@ class Aggregate(ABC):
 class CarOrder(Aggregate):
     def __init__(self):
         self.cars : list[Car] = []
+        self.total_price: int = 0
 
     def add_item(self, car: Car):
         self.cars.append(car)
+        self.total_price += car.get_total_price()
+
+    def checkout(self, processor:PaymentProcessor):
+        processor.pay(self.total_price)
 
     def create_iterator(self):
         return OrderIterator(self)
@@ -133,40 +168,6 @@ class OrderIterator(Iterator):
             self.index += 1
             return car
         raise StopIteration
-
-## CLASSES FOR ADAPTER DESIGN PATTERN
-class PaymentProcessor(ABC):
-    @abstractmethod
-    def pay(self, amount: float):
-        pass
-
-# Current Service
-class LowPayment(PaymentProcessor):
-    def pay(self, amount: float):
-        if amount > 10000 or amount < 0:
-            print("Payment failed! Too expensive.")
-            return
-        print(f"Successful payment of ${amount} with Low Payment")
-
-# Current payment system
-def checkout(processor:PaymentProcessor, amount):
-    processor.pay(amount)
-
-# New Service
-class AnyPayment:
-    def process_payment(self, amount: float, business_name: str):
-        print("Processing...")
-        if amount < 0:
-            print("Process failed!")
-            return
-        print(f"Payment to {business_name} of ${amount} successful --- Any Payment")
-
-class AnyPaymentAdapter(PaymentProcessor):
-    def __init__(self, service: AnyPayment):
-        self.service = service
-
-    def pay(self, amount):
-        self.service.process_payment(amount, "PERSONALIZED CARS")
 
 ### INDIVIDUAL FEATURES
 premiumSound = CarFeature("Premium Sound System", 1500.99)
@@ -221,7 +222,7 @@ familyCar = director.construct_family_car()
 electricCar = director.construct_electric_car()
 
 
-### MAKE ORDER AND CALCULATE TOTAL
+### MAKE ORDER
 order = CarOrder()
 order.add_item(sportsCar)
 order.add_item(familyCar)
@@ -229,15 +230,13 @@ order.add_item(electricCar)
 
 iterator = order.create_iterator()
 
-orderPrice = 0
 print(f"\n------------------ ORDER -------------------")
 while iterator.has_next():
     car = iterator.next()
-    orderPrice += car.get_total_price()
     car.show_details()
     print()
 print("--------------------------------------------")
-print(f"ORDER TOTAL: ${orderPrice:.2f}\n")
+print(f"ORDER TOTAL: ${order.total_price:.2f}\n")
 
 
 ### PROCESS PAYMENT
@@ -245,6 +244,6 @@ lowPayment = LowPayment()
 anyPayment = AnyPayment()
 adapter = AnyPaymentAdapter(anyPayment)
 
-checkout(lowPayment, orderPrice)
-checkout(adapter, orderPrice)
+order.checkout(lowPayment)
+order.checkout(adapter)
 print()
